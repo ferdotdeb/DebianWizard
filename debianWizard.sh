@@ -1,19 +1,18 @@
 #!/bin/bash
 
 # ======================================================================
-# 
 # DebianWizard
 #
-# An Debian and derivatives Auto-installer Script
+# An Debian and derivatives auto-installer script
 #
-# Improved Version with Claude Sonnet 4
+# Improved version with Claude Sonnet 4
 #
 # Author: ferdotdeb
 # Description: Automated setup script for Debian-based systems
 # IMPORTANT: This script is designed for fresh Debian/Ubuntu or derivatives installations.
 # ======================================================================
 
-# Color codes for output
+# Color codes for output messages
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -25,7 +24,7 @@ git_email=""
 ssh_password=""
 
 # ======================================================================
-# PRINT FUNCTIONS
+# PRINT MESSAGES FUNCTIONS
 # ======================================================================
 
 # Function to print colored messages
@@ -72,9 +71,10 @@ check_internet() {
 
 show_welcome() {
     echo "=============================================="
-    echo "Welcome to the ferdotdeb Debian auto-installer"
+    echo "Welcome to the Debian Wizard"
+    echo "An Debian auto-installer script by @ferdotdeb"
     echo "=============================================="
-
+ 
     sleep 2
 }
 
@@ -196,7 +196,8 @@ update_system() {
     fi
     
     echo "Upgrading installed packages..."
-    if ! sudo apt upgrade -y; then
+    # Usar modo no interactivo para evitar prompts de needrestart
+    if ! sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt upgrade -y; then
         print_error "Failed to upgrade packages"
         exit 1
     fi
@@ -209,7 +210,7 @@ install_repository_software() {
     echo "Installing software from repositories..."
     
     # Check if required packages are already installed
-    local packages="vim git fastfetch openssh-client solaar xclip curl wget"
+    local packages="vim git fastfetch openssh-client solaar curl wget"
     local missing_packages=""
     
     for package in $packages; do
@@ -304,38 +305,21 @@ install_vscode() {
 
 install_uv() {
     echo "Installing UV for Python..."
-    
-    # Check if UV is already installed
-    if command_exists uv; then
-        print_success "UV is already installed"
-        uv --version
-        return 0
-    fi
-    
     echo "Downloading UV setup script..."
+    
     if ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
         print_error "Failed to install UV"
         return 1
     fi
     
-    echo "Setting up UV environment..."
+    echo "Restarting shell..."
     if [ -f "$HOME/.local/bin/env" ]; then
         source "$HOME/.local/bin/env"
-        print_success "UV environment loaded"
     else
-        print_warning "UV environment file not found at $HOME/.local/bin/env"
-        echo "Adding UV to PATH manually"
-        export PATH="$HOME/.local/bin:$PATH"
+        print_warning "UV environment file not found"
     fi
     
-    # Verify installation
-    if command_exists uv; then
-        print_success "UV installed successfully!"
-        uv --version
-    else
-        print_error "UV installation completed but command not found in PATH"
-        return 1
-    fi
+    print_success "UV installed successfully!"
 
     return 0
 }
@@ -374,6 +358,7 @@ install_external_software() {
 
 configure_git() {
     echo "Continuing with Git configuration..."
+    sleep 2
     echo "Starting Git configuration..."
     
     # Set default branch
@@ -394,10 +379,24 @@ configure_git() {
         return 1
     fi
     
+    # Configure pull behavior (merge instead of rebase)
+    if ! git config --global pull.rebase false; then
+        print_error "Failed to set pull behavior"
+        return 1
+    fi
+    
+    # Configure push to automatically set up remote tracking
+    if ! git config --global push.autoSetupRemote true; then
+        print_error "Failed to set push auto setup remote"
+        return 1
+    fi
+    
     print_success "Git configured successfully with:"
     echo "  Name: $git_username"
     echo "  Email: $git_email"
     echo "  Default branch: main"
+    echo "  Pull strategy: merge (no rebase)"
+    echo "  Push auto-setup: enabled"
     
     return 0
 }
@@ -417,7 +416,6 @@ setup_ssh_key() {
         return 1
     fi
     
-
     # Create SSH Key with the provided email, default location, and specific password
     if ! ssh-keygen -t ed25519 -C "$git_email" -f ~/.ssh/id_ed25519 -N "$ssh_password" -q; then
         print_error "Failed to create SSH key"
@@ -425,7 +423,6 @@ setup_ssh_key() {
     fi
     
     print_success "SSH key created successfully!"
-    
     
     # Set proper permissions for SSH keys
     chmod 600 ~/.ssh/id_ed25519
@@ -447,17 +444,6 @@ setup_ssh_key() {
         print_warning "Failed to save public key to file"
     else
         print_success "Public key saved to public_key.txt"
-    fi
-    
-    # Copy the key to the clipboard if xclip is available
-    if command_exists xclip; then
-        if cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard; then
-            print_success "Public key copied to clipboard"
-        else
-            print_warning "Failed to copy public key to clipboard"
-        fi
-    else
-        print_warning "xclip not available, public key not copied to clipboard"
     fi
     
     echo "Your SSH public key (add this to GitHub/GitLab):"
@@ -487,8 +473,9 @@ alias ....='cd ../../..'
 
 # System
 alias upg='sudo apt update && sudo apt upgrade -y'
-alias install='sudo apt install'
-alias remove='sudo apt remove'
+alias aptin='sudo apt install'
+alias aptrm='sudo apt remove'
+alias autorm='sudo apt autoremove'
 alias cls='clear'
 alias python='python3'
 
@@ -497,7 +484,9 @@ alias gs='git status'
 alias ga='git add'
 alias gc='git commit -m'
 alias gp='git push'
-alias gl='git pull'
+alias gpl='git pull'
+alias gsw='git switch'
+alias glg='git log'
 
 EOL
 
