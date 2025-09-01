@@ -178,6 +178,9 @@ collect_user_info() {
 # ======================================================================
 
 update_system() {
+    echo "From this point on, the script will be fully automated."
+    sleep 2
+
     echo "Checking internet connectivity..."
     if ! check_internet; then
         print_error "No internet connection detected"
@@ -202,6 +205,7 @@ update_system() {
 }
 
 install_repository_software() {
+    echo "Continuing with the installation of repository software..."
     echo "Installing software from repositories..."
     
     # Check if required packages are already installed
@@ -337,6 +341,7 @@ install_uv() {
 }
 
 install_external_software() {
+    echo "Continuing with the installation of external software..."
     echo "Installing external software..."
     
     local failed_installations=0
@@ -368,6 +373,7 @@ install_external_software() {
 # ======================================================================
 
 configure_git() {
+    echo "Continuing with Git configuration..."
     echo "Starting Git configuration..."
     
     # Set default branch
@@ -465,8 +471,8 @@ setup_ssh_key() {
 # ======================================================================
 
 setup_bash_aliases() {
-    echo "Setting up useful aliases..."
-    echo "You can see the list documented in the README file"
+    echo "Continuing with the setup of bash aliases..."
+    echo "You can see the list of all aliases documented in the README file"
     
     # Create .bash_aliases file
     cat > ~/.bash_aliases << 'EOL'
@@ -500,7 +506,7 @@ EOL
         echo "source ~/.bash_aliases" >> ~/.bashrc
     fi
 
-    echo "Aliases configured successfully!"
+    print_success "Aliases configured successfully!"
     return 0
 }
 
@@ -539,13 +545,13 @@ main() {
         print_warning "Bash aliases setup failed but continuing"
     fi
     
-    echo "======================================================================"
+    echo "======================================================================================"
     if [ $git_failed -eq 0 ] && [ $ssh_failed -eq 0 ]; then
-        print_success "Installation and configuration completed successfully!"
+        print_success "Fully software installation and Git configuration completed successfully!"
     else
         print_warning "Installation completed with some configuration issues"
     fi
-    echo "======================================================================"
+    echo "======================================================================================"
     echo "Next steps:"
     if [ $ssh_failed -eq 0 ]; then
         echo "1. Add your SSH public key to GitHub/GitLab (saved in public_key.txt)"
@@ -558,7 +564,7 @@ main() {
     else
         echo "3. Git configuration failed - you may need to configure it manually"
     fi
-    echo "======================================================================"
+    echo "======================================================================================"
 }
 
 # ======================================================================
