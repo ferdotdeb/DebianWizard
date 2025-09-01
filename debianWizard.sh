@@ -69,12 +69,15 @@ check_internet() {
     fi
 }
 
+# ======================================================================
+# PRE-REQUISITES FUNCTION
+# ======================================================================
+
 show_welcome() {
     echo "=============================================="
     echo "Welcome to the Debian Wizard"
     echo "An Debian auto-installer script by @ferdotdeb"
     echo "=============================================="
- 
     sleep 2
 }
 
@@ -350,6 +353,8 @@ install_external_software() {
     else
         print_warning "External software installation completed with $failed_installations failures"
     fi
+
+    return 0
 }
 
 # ======================================================================

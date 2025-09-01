@@ -78,7 +78,7 @@ This section provides a detailed breakdown of each function within the script.
 ### System and Software Installation Functions
 
 - `update_system()`: Performs a full system update by running `sudo apt update` and `sudo apt upgrade -y`.
-- `install_repository_software()`: Installs a predefined list of essential packages from the default system repositories (`vim`, `git`, `fastfetch`, `openssh-client`, `solaar`, `xclip`, `curl`, `wget`).
+- `install_repository_software()`: Installs a predefined list of essential packages from the default system repositories (`vim`, `git`, `fastfetch`, `openssh-client`, `solaar`, `curl`, `wget`).
 - `install_google_chrome()`: Downloads the `.deb` package for Google Chrome, installs it using `dpkg`, and handles any potential dependency issues with `apt --fix-broken install`.
 - `install_vscode()`: Downloads and installs the latest stable version of Visual Studio Code for Debian-based systems.
 - `install_uv()`: Installs `uv`, a fast Python package manager from Astral, by executing its official installation script.
@@ -92,7 +92,7 @@ This section provides a detailed breakdown of each function within the script.
     2. Sets the correct permissions (`700` for `~/.ssh` and `600` for the private key).
     3. Starts the `ssh-agent` and adds the new key.
     4. Saves the public key to `public_key.txt` in the current directory.
-    5. Copies the public key to the clipboard using `xclip` (if available).
+    5. Displays the public key.
 
 ### Setup Bash Aliases Function
 
@@ -127,4 +127,9 @@ The following list are all the aliases are created in the installation process:
 | `gsw`  | `git switch`                       | Switch branches.                                 |
 | `glg`  | `git log`                          | Show commit logs.                                |
 
-## License
+### Do you understand the code?
+
+If you can read, and understand the code, great!
+You can add or remove pieces of code, add or remove more software auto-installation functions, or modify existing ones.
+
+Feel free to make a fork or submit a pull request.
