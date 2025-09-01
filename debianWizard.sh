@@ -1,7 +1,13 @@
 #!/bin/bash
 
 # ======================================================================
-# Debian Auto-installer Script - Improved Version by Claude Sonnet 4
+# 
+# DebianWizard
+#
+# An Debian and derivatives Auto-installer Script
+#
+# Improved Version with Claude Sonnet 4
+#
 # Author: ferdotdeb
 # Description: Automated setup script for Debian-based systems
 # IMPORTANT: This script is designed for fresh Debian/Ubuntu or derivatives installations.
@@ -19,7 +25,7 @@ git_email=""
 ssh_password=""
 
 # ======================================================================
-# UTILITY FUNCTIONS
+# PRINT FUNCTIONS
 # ======================================================================
 
 # Function to print colored messages
@@ -28,6 +34,8 @@ print_message() {
     local message=$2
     echo -e "${color}${message}${NC}"
 }
+
+# The $1 parameter is the message sended to the print function to be showed with the color and symbol
 
 # Function to print success messages
 print_success() {
@@ -49,6 +57,10 @@ command_exists() {
     command -v "$1" &> /dev/null
 }
 
+# ======================================================================
+# CHECK INTERNET FUNCTION
+# ======================================================================
+
 # Function to check internet connectivity
 check_internet() {
     if ping -c 1 8.8.8.8 &> /dev/null || ping -c 1 google.com &> /dev/null; then
@@ -59,10 +71,10 @@ check_internet() {
 }
 
 show_welcome() {
-    echo "=========================================="
+    echo "=============================================="
     echo "Welcome to the ferdotdeb Debian auto-installer"
-    echo "=========================================="
-    
+    echo "=============================================="
+
     sleep 2
 }
 
