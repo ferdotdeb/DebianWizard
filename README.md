@@ -26,7 +26,9 @@ Taking advantage of the power of automation offered by Linux 🔥.
 - Install wget (sudo apt install wget)
 - Internet connectivity.
 
-⚠️ Run the script on an operating system configured at your own risk, as it may modify system files and settings. ⚠️
+⚠️ Run the script on an operating system already configured at your own risk ⚠️
+
+As it may modify system files and settings.
 
 ## How to Use
 
