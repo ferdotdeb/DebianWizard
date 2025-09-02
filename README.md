@@ -21,7 +21,8 @@ Taking advantage of the power of automation offered by Linux 🔥.
 ## Prerequisites
 
 - A fresh installation of a Debian-based operating system (e.g., Debian, Ubuntu, Linux Mint).
-- Super user privileges (Add user to the sudoers file).
+- Add user to the sudoers file.
+- Super user privileges (sudo).
 - Install wget (sudo apt install wget)
 - Internet connectivity.
 
@@ -130,7 +131,7 @@ The following list are all the aliases are created in the installation process:
 | `gsw`  | `git switch`                       | Switch branches.                                 |
 | `glg`  | `git log`                          | Show commit logs.                                |
 
-### Do you understand the code? 
+### Do you understand the code?
 
 If you can read, and understand the code, great!
 You can add or remove pieces of code, add or remove more software auto-installation functions, or modify existing ones.

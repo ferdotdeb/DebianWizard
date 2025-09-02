@@ -318,11 +318,10 @@ install_uv() {
     echo "Restarting shell..."
     if [ -f "$HOME/.local/bin/env" ]; then
         source "$HOME/.local/bin/env"
+        print_success "UV installed successfully!"
     else
         print_warning "UV environment file not found"
     fi
-    
-    print_success "UV installed successfully!"
 
     return 0
 }
@@ -439,10 +438,24 @@ setup_ssh_key() {
     print_success "SSH agent started successfully!"
 
     # Add the key to the agent
-    if ! echo "$ssh_password" | ssh-add ~/.ssh/id_ed25519 2>/dev/null; then
+    # Crear un script temporal para proporcionar la contraseña
+    SSH_ASKPASS_SCRIPT=$(mktemp)
+    chmod +x "$SSH_ASKPASS_SCRIPT"
+    echo "#!/bin/bash" > "$SSH_ASKPASS_SCRIPT"
+    echo "echo '$ssh_password'" >> "$SSH_ASKPASS_SCRIPT"
+    
+    # Usar SSH_ASKPASS para proporcionar la contraseña de forma no interactiva
+    SSH_ASKPASS="$SSH_ASKPASS_SCRIPT" DISPLAY=:0 ssh-add ~/.ssh/id_ed25519 </dev/null
+    
+    # Verificar si se añadió correctamente
+    if ! ssh-add -l | grep -q "id_ed25519"; then
         print_error "Failed to add SSH key to agent"
+        rm -f "$SSH_ASKPASS_SCRIPT"
         return 1
     fi
+    
+    # Limpiar el script temporal
+    rm -f "$SSH_ASKPASS_SCRIPT"
     
     print_success "SSH key added to agent successfully!"
     
