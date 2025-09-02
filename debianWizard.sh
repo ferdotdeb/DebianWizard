@@ -3,7 +3,7 @@
 # ======================================================================
 # DebianWizard
 #
-# An Debian and derivatives auto-installer script
+# A bash script for Debian (and derivatives) automated post-install
 #
 # Improved version with Claude Sonnet 4
 #
@@ -74,10 +74,10 @@ check_internet() {
 # ======================================================================
 
 show_welcome() {
-    echo "=============================================="
-    echo "Welcome to the Debian Wizard"
-    echo "An Debian auto-installer script by @ferdotdeb"
-    echo "=============================================="
+    echo "==============================================================================="
+    echo "                      Welcome to the Debian Wizard"
+    echo "A bash script for Debian (and derivatives) automated post-install by @ferdotdeb"
+    echo "==============================================================================="
     sleep 2
 }
 
@@ -213,7 +213,7 @@ install_repository_software() {
     echo "Installing software from repositories..."
     
     # Check if required packages are already installed
-    local packages="vim git fastfetch openssh-client solaar curl wget"
+    local packages="vim git fastfetch openssh-client solaar curl"
     local missing_packages=""
     
     for package in $packages; do
@@ -289,10 +289,10 @@ install_vscode() {
     fi
     
     # Install VS Code
-    if ! sudo dpkg -i /tmp/vscode.deb; then
+    if ! sudo DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/vscode.deb; then
         print_warning "dpkg installation failed, trying to fix dependencies"
-        # Fix any dependency issues
-        if ! sudo apt --fix-broken install -y; then
+        # Fix any dependency issues with noninteractive mode
+        if ! sudo DEBIAN_FRONTEND=noninteractive apt --fix-broken install -y; then
             print_error "Failed to fix VS Code dependencies"
             rm -f /tmp/vscode.deb
             return 1
@@ -435,9 +435,11 @@ setup_ssh_key() {
     
     echo "Starting SSH agent..."
     eval "$(ssh-agent -s)"
-    
+
+    print_success "SSH agent started successfully!"
+
     # Add the key to the agent
-    if ! ssh-add ~/.ssh/id_ed25519; then
+    if ! echo "$ssh_password" | ssh-add ~/.ssh/id_ed25519 2>/dev/null; then
         print_error "Failed to add SSH key to agent"
         return 1
     fi
@@ -483,6 +485,8 @@ alias aptrm='sudo apt remove'
 alias autorm='sudo apt autoremove'
 alias cls='clear'
 alias python='python3'
+alias shutdown='systemctl poweroff'
+alias reboot='systemctl reboot'
 
 # Git shortcuts
 alias gs='git status'
