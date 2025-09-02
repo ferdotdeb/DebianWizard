@@ -11,11 +11,11 @@ Taking advantage of the power of automation offered by Linux 🔥.
 - **System Compatibility Check**: Ensures the script runs only on Debian-based systems (Debian or Ubuntu derivatives).
 - **Automated System Update**: Update and upgrade all system packages for the installation, without the need to do it manually before running the script.
 - **Software Installation**:
-  - **From Repositories**: Installs common utilities like `vim`, `git`, `curl`, `openssh-client`, and more.
+  - **From Repositories**: Installs common utilities like `vim`, `git`, `curl`, `openssh-client` and more.
   - **External Software (.deb packages)**: Installs Google Chrome, Visual Studio Code, and the `uv` Python package manager.
-- **Git Configuration**:
-  - **Git**: Configures your global Git username and email also establishes the default branch as main, using main aligns with modern Git hosting defaults (e.g., GitHub), avoids branch-name mismatches when pushing to remotes, and replaces the legacy master.
-  - **SSH**: Generates a new `ed25519` SSH key, adds it to the `ssh-agent`, and saves the public key for easy use on platforms like GitHub or GitLab.
+- **Git & GitHub Ready**:
+  - **Git Configuration**: Configures your global Git username and email also establishes the default branch as main, using main aligns with modern Git hosting defaults (e.g., GitHub), avoids branch-name mismatches when pushing to remotes, and replaces the legacy master.
+  - **SSH Configuration**: Generates a new `ed25519` SSH key, adds it to the `ssh-agent`, and saves the public key for easy use on platforms like GitHub or GitLab.
 - **Bash Aliases**: Sets up a collection of useful bash aliases to speed up common command-line tasks (Listed below).
 
 ## Prerequisites
@@ -26,7 +26,7 @@ Taking advantage of the power of automation offered by Linux 🔥.
 - Install wget (sudo apt install wget)
 - Internet connectivity.
 
-Execute in a current working system at your own risk, as it may modify system files and settings.
+⚠️ Run the script on an operating system configured at your own risk, as it may modify system files and settings. ⚠️
 
 ## How to Use
 
@@ -36,13 +36,13 @@ Execute in a current working system at your own risk, as it may modify system fi
     wget https://raw.githubusercontent.com/ferdotdeb/DebianWizard/main/debianWizard.sh
     ```
 
-2. Make it executable:
+2. Make it executable ⚙️:
 
     ```bash
     chmod +x debianWizard.sh
     ```
 
-3. Run the script:
+3. Run the script 🚀:
 
     ```bash
     ./debianWizard.sh

@@ -213,7 +213,7 @@ install_repository_software() {
     echo "Installing software from repositories..."
     
     # Check if required packages are already installed
-    local packages="vim git fastfetch openssh-client solaar curl"
+    local packages="vim git fastfetch openssh-client solaar curl expect"
     local missing_packages=""
     
     for package in $packages; do
@@ -437,25 +437,39 @@ setup_ssh_key() {
 
     print_success "SSH agent started successfully!"
 
-    # Add the key to the agent
-    # Crear un script temporal para proporcionar la contraseña
-    SSH_ASKPASS_SCRIPT=$(mktemp)
-    chmod +x "$SSH_ASKPASS_SCRIPT"
-    echo "#!/bin/bash" > "$SSH_ASKPASS_SCRIPT"
-    echo "echo '$ssh_password'" >> "$SSH_ASKPASS_SCRIPT"
-    
-    # Usar SSH_ASKPASS para proporcionar la contraseña de forma no interactiva
-    SSH_ASKPASS="$SSH_ASKPASS_SCRIPT" DISPLAY=:0 ssh-add ~/.ssh/id_ed25519 </dev/null
-    
+    # Add the key to the agent using expect
+    if ! command_exists expect; then
+        echo "Installing expect for automated password entry..."
+        sudo apt install -y expect
+    fi
+
+    # Crear un script expect temporal
+    EXPECT_SCRIPT=$(mktemp)
+    cat > "$EXPECT_SCRIPT" << EOL
+    #!/usr/bin/expect -f
+    spawn ssh-add ~/.ssh/id_ed25519
+    expect "Enter passphrase for /home/$USER/.ssh/id_ed25519:"
+    send "$ssh_password\r"
+    expect eof
+EOL
+
+    chmod +x "$EXPECT_SCRIPT"
+
+    # Ejecutar el script expect
+    if ! "$EXPECT_SCRIPT"; then
+        print_error "Failed to add SSH key to agent"
+        rm -f "$EXPECT_SCRIPT"
+        return 1
+    fi
+
+    # Limpiar el script temporal
+    rm -f "$EXPECT_SCRIPT"
+
     # Verificar si se añadió correctamente
     if ! ssh-add -l | grep -q "id_ed25519"; then
         print_error "Failed to add SSH key to agent"
-        rm -f "$SSH_ASKPASS_SCRIPT"
         return 1
     fi
-    
-    # Limpiar el script temporal
-    rm -f "$SSH_ASKPASS_SCRIPT"
     
     print_success "SSH key added to agent successfully!"
     
