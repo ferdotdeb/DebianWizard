@@ -443,14 +443,14 @@ setup_ssh_key() {
         sudo apt install -y expect
     fi
 
-    # Crear un script expect temporal
-    EXPECT_SCRIPT=$(mktemp)
-    cat > "$EXPECT_SCRIPT" << EOL
-    #!/usr/bin/expect -f
-    spawn ssh-add ~/.ssh/id_ed25519
-    expect "Enter passphrase for /home/$USER/.ssh/id_ed25519:"
-    send "$ssh_password\r"
-    expect eof
+# Crear un script expect temporal
+EXPECT_SCRIPT=$(mktemp)
+cat > "$EXPECT_SCRIPT" << EOL
+#!/usr/bin/expect -f
+spawn ssh-add ~/.ssh/id_ed25519
+expect "Enter passphrase for /home/$USER/.ssh/id_ed25519:"
+send "$ssh_password\r"
+expect eof
 EOL
 
     chmod +x "$EXPECT_SCRIPT"
