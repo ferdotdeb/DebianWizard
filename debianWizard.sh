@@ -78,13 +78,13 @@ show_welcome() {
     echo "                      Welcome to the Debian Wizard"
     echo "A bash script for Debian (and derivatives) automated post-install by @ferdotdeb"
     echo "==============================================================================="
-    sleep 2
+    sleep 5
 }
 
 check_system() {
     echo "Checking OS version..."
     cat /etc/os-release
-    sleep 2
+    sleep 5
     
     # Load variables of /etc/os-release file
     if ! source /etc/os-release; then
@@ -112,13 +112,13 @@ check_system() {
         exit 1
     fi
 
-    sleep 2
+    sleep 3
 }
 
 request_sudo_permission() {
     echo "Pre-requisites check..."
-    echo "This will be the only non-automated part of the script"
-    sleep 2
+    echo "This step and the ssh key adding, will be the only non-automated part of the script"
+    sleep 5
     
     echo "Please grant sudo permission to the script"
     if ! sudo -v; then
@@ -172,8 +172,8 @@ collect_user_info() {
         read -s ssh_password
         echo
     done
-    
-    print_success "Pre-requisites check completed!"
+
+    print_success "Pre-requisites completed!"
 }
 
 # ======================================================================
@@ -181,9 +181,6 @@ collect_user_info() {
 # ======================================================================
 
 update_system() {
-    echo "From this point on, the script will be fully automated."
-    sleep 2
-
     echo "Checking internet connectivity..."
     if ! check_internet; then
         print_error "No internet connection detected"
@@ -191,7 +188,8 @@ update_system() {
     fi
 
     echo "Updating the system before installation..."
-    sleep 2
+    sleep 3
+
     echo "Updating package list..."
     if ! sudo apt update; then
         print_error "Failed to update package list"
@@ -213,7 +211,7 @@ install_repository_software() {
     echo "Installing software from repositories..."
     
     # Check if required packages are already installed
-    local packages="vim git fastfetch openssh-client solaar curl expect"
+    local packages="vim git fastfetch openssh-client solaar curl"
     local missing_packages=""
     
     for package in $packages; do
@@ -233,7 +231,7 @@ install_repository_software() {
     fi
     
     print_success "Software from repositories installed successfully!"
-    sleep 2
+    sleep 3
 }
 
 # ======================================================================
@@ -435,38 +433,12 @@ setup_ssh_key() {
     echo "Starting SSH agent..."
     eval "$(ssh-agent -s)"
 
-    print_success "SSH agent started successfully!"
-
-    # Add the key to the agent using expect
-    if ! command_exists expect; then
-        echo "Installing expect for automated password entry..."
-        sudo apt install -y expect
-    fi
-
-# Crear un script expect temporal
-EXPECT_SCRIPT=$(mktemp)
-cat > "$EXPECT_SCRIPT" << EOL
-#!/usr/bin/expect -f
-spawn ssh-add ~/.ssh/id_ed25519
-expect "Enter passphrase for /home/$USER/.ssh/id_ed25519:"
-send "$ssh_password\r"
-expect eof
-EOL
-
-    chmod +x "$EXPECT_SCRIPT"
-
-    # Ejecutar el script expect
-    if ! "$EXPECT_SCRIPT"; then
-        print_error "Failed to add SSH key to agent"
-        rm -f "$EXPECT_SCRIPT"
-        return 1
-    fi
-
-    # Limpiar el script temporal
-    rm -f "$EXPECT_SCRIPT"
-
-    # Verificar si se añadió correctamente
-    if ! ssh-add -l | grep -q "id_ed25519"; then
+    print_warning "In 10 seconds you will need to enter your SSH key passphrase"
+    sleep 10
+    echo "Please enter your SSH key passphrase (if any):"
+    
+    # Add the key to the agent
+    if ! ssh-add ~/.ssh/id_ed25519; then
         print_error "Failed to add SSH key to agent"
         return 1
     fi

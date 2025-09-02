@@ -15,7 +15,7 @@ Taking advantage of the power of automation offered by Linux 🔥.
   - **External Software (.deb packages)**: Installs Google Chrome, Visual Studio Code, and the `uv` Python package manager.
 - **Git & GitHub Ready**:
   - **Git Configuration**: Configures your global Git username and email also establishes the default branch as main, using main aligns with modern Git hosting defaults (e.g., GitHub), avoids branch-name mismatches when pushing to remotes, and replaces the legacy master.
-  - **SSH Configuration**: Generates a new `ed25519` SSH key, adds it to the `ssh-agent`, and saves the public key for easy use on platforms like GitHub or GitLab.
+  - **SSH Configuration**: Generates a new `ed25519` SSH key, adds it to the `ssh-agent`, and after re-entering your passphrase manually, saves the public key for easy use on platforms like GitHub or GitLab.
 - **Bash Aliases**: Sets up a collection of useful bash aliases to speed up common command-line tasks (Listed below).
 
 ## Prerequisites
