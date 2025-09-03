@@ -75,7 +75,14 @@ check_internet() {
 
 show_welcome() {
     echo "==============================================================================="
-    echo "                      Welcome to the Debian Wizard"
+    echo "          ______     _     _               _    _ _                  _ ";
+    echo "          |  _  \\   | |   (_)             | |  | (_)                | |";
+    echo "          | | | |___| |__  _  __ _ _ __   | |  | |_ ______ _ _ __ __| |";
+    echo "          | | | / _ \\ '_ \\| |/ _\` | '_ \\  | |/\\| | |_  / _\` | '__/ _\` |";
+    echo "          | |/ /  __/ |_) | | (_| | | | | \\  /\\  / |/ / (_| | | | (_| |";
+    echo "          |___/ \\___|_.__/|_|\\__,_|_| |_|  \\/  \\/|_/___\\__,_|_|  \\__,_|";
+    echo "                                                                      ";
+    echo "                      Welcome to the Debian Wizard                             "    
     echo "A bash script for Debian (and derivatives) automated post-install by @ferdotdeb"
     echo "==============================================================================="
     sleep 5
@@ -324,6 +331,157 @@ install_uv() {
     return 0
 }
 
+install_docker() {
+    echo "Installing Docker..."
+    
+    # Check if Docker is already installed
+    if command_exists docker; then
+        print_success "Docker is already installed"
+        return 0
+    fi
+    
+    # Load OS information if not already loaded
+    if [ -z "$ID" ]; then
+        source /etc/os-release
+    fi
+    
+    # Install Docker based on distribution
+    if [[ "$ID" == "debian" ]] || [[ "$ID_LIKE" =~ debian ]]; then
+        echo "Installing Docker for Debian-based system..."
+        
+        # Update package list and install prerequisites
+        echo "Updating repositories..."
+        if ! sudo apt-get update; then
+            print_error "Failed to update package list"
+            return 1
+        fi
+        
+        if ! sudo apt-get install -y ca-certificates curl; then
+            print_error "Failed to install prerequisites"
+            return 1
+        fi
+        
+        # Create keyrings directory
+        echo "Setting up Docker GPG key..."
+        if ! sudo install -m 0755 -d /etc/apt/keyrings; then
+            print_error "Failed to create keyrings directory"
+            return 1
+        fi
+        
+        # Add Docker's official GPG key
+        if ! sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc; then
+            print_error "Failed to download Docker GPG key"
+            return 1
+        fi
+        
+        if ! sudo chmod a+r /etc/apt/keyrings/docker.asc; then
+            print_error "Failed to set permissions for Docker GPG key"
+            return 1
+        fi
+        
+        # Add Docker repository
+        echo "Adding Docker repository..."
+        if ! echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null; then
+            print_error "Failed to add Docker repository"
+            return 1
+        fi
+        
+        # Update package list with new repository
+        if ! sudo apt-get update; then
+            print_error "Failed to update package list after adding Docker repository"
+            return 1
+        fi
+        
+        # Install Docker
+        echo "Installing Docker packages..."
+        if ! sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin; then
+            print_error "Failed to install Docker packages"
+            return 1
+        fi
+        
+        print_success "Docker installed successfully for Debian!"
+        
+    elif [[ "$ID" == "ubuntu" ]]; then
+        echo "Installing Docker for Ubuntu..."
+        
+        # Update package list and install prerequisites
+        echo "Updating repositories..."
+        if ! sudo apt-get update; then
+            print_error "Failed to update package list"
+            return 1
+        fi
+        
+        if ! sudo apt-get install -y ca-certificates curl; then
+            print_error "Failed to install prerequisites"
+            return 1
+        fi
+        
+        # Create keyrings directory
+        echo "Setting up Docker GPG key..."
+        if ! sudo install -m 0755 -d /etc/apt/keyrings; then
+            print_error "Failed to create keyrings directory"
+            return 1
+        fi
+        
+        # Add Docker's official GPG key for Ubuntu
+        if ! sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; then
+            print_error "Failed to download Docker GPG key"
+            return 1
+        fi
+        
+        if ! sudo chmod a+r /etc/apt/keyrings/docker.asc; then
+            print_error "Failed to set permissions for Docker GPG key"
+            return 1
+        fi
+        
+        # Add Docker repository for Ubuntu
+        echo "Adding Docker repository..."
+        if ! echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null; then
+            print_error "Failed to add Docker repository"
+            return 1
+        fi
+        
+        # Update package list with new repository
+        if ! sudo apt-get update; then
+            print_error "Failed to update package list after adding Docker repository"
+            return 1
+        fi
+        
+        # Install Docker
+        echo "Installing Docker packages..."
+        if ! sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin; then
+            print_error "Failed to install Docker packages"
+            return 1
+        fi
+        
+        print_success "Docker installed successfully for Ubuntu!"
+        
+    else
+        print_error "Docker installation not supported for this distribution: $ID"
+        return 1
+    fi
+    
+    # Verify Docker installation
+    if command_exists docker; then
+        echo "Docker version:"
+        docker --version
+        print_success "Docker installation completed successfully!"
+        
+        # Add current user to docker group (optional)
+        echo "Adding current user to docker group for non-root access..."
+        if sudo usermod -aG docker "$USER"; then
+            print_success "User added to docker group. Please log out and back in for changes to take effect."
+        else
+            print_warning "Failed to add user to docker group"
+        fi
+    else
+        print_error "Docker installation verification failed"
+        return 1
+    fi
+    
+    return 0
+}
+
 install_external_software() {
     echo "Continuing with the installation of external software..."
     echo "Installing external software..."
@@ -345,13 +503,18 @@ install_external_software() {
         print_warning "UV installation failed but continuing"
     fi
     
+    if ! install_docker; then
+        ((failed_installations++))
+        print_warning "Docker installation failed but continuing"
+    fi
+    
     if [ $failed_installations -eq 0 ]; then
         print_success "All external software installed successfully!"
     else
         print_warning "External software installation completed with $failed_installations failures"
     fi
 
-    return 0
+    return $failed_installations
 }
 
 # ======================================================================
@@ -432,6 +595,7 @@ setup_ssh_key() {
     
     echo "Starting SSH agent..."
     eval "$(ssh-agent -s)"
+    print_success "SSH agent started successfully!"
 
     print_warning "In 10 seconds you will need to enter your SSH key passphrase"
     sleep 10
@@ -521,7 +685,11 @@ main() {
     # System updates and software installation
     update_system
     install_repository_software
+    
+    # External software installation with failure tracking
+    local external_software_failed=0
     install_external_software
+    external_software_failed=$?
     
     # Git and SSH configuration
     local git_failed=0
@@ -538,29 +706,92 @@ main() {
     fi
     
     # Bash configuration
+    local bash_failed=0
     if ! setup_bash_aliases; then
+        bash_failed=1
         print_warning "Bash aliases setup failed but continuing"
     fi
     
     echo "======================================================================================"
-    if [ $git_failed -eq 0 ] && [ $ssh_failed -eq 0 ]; then
-        print_success "Fully software installation and Git configuration completed successfully!"
-    else
-        print_warning "Installation completed with some configuration issues"
-    fi
+    echo "                           Installation Summary                                       "
     echo "======================================================================================"
-    echo "Next steps:"
-    if [ $ssh_failed -eq 0 ]; then
-        echo "1. Add your SSH public key to GitHub/GitLab (saved in public_key.txt)"
+    
+    # External software status
+    if [ $external_software_failed -eq 0 ]; then
+        print_success "External Software: All programs installed successfully (Chrome, VS Code, UV, Docker)"
     else
-        echo "1. SSH key setup failed - you may need to configure it manually"
+        print_warning "External Software: $external_software_failed program(s) failed to install"
     fi
-    echo "2. Restart your terminal or run 'source ~/.bashrc' to load aliases"
+    
+    # Git configuration status
     if [ $git_failed -eq 0 ]; then
-        echo "3. Test your Git configuration with 'git config --list'"
+        print_success "Git Configuration: Completed successfully"
     else
-        echo "3. Git configuration failed - you may need to configure it manually"
+        print_warning "Git Configuration: Failed - manual setup required"
     fi
+    
+    # SSH configuration status
+    if [ $ssh_failed -eq 0 ]; then
+        print_success "SSH Key Setup: Completed successfully"
+    else
+        print_warning "SSH Key Setup: Failed - manual setup required"
+    fi
+    
+    # Bash aliases status
+    if [ $bash_failed -eq 0 ]; then
+        print_success "Bash Aliases: Configured successfully"
+    else
+        print_warning "Bash Aliases: Failed - manual setup required"
+    fi
+    
+    echo "======================================================================================"
+    
+    # Overall status
+    if [ $external_software_failed -eq 0 ] && [ $git_failed -eq 0 ] && [ $ssh_failed -eq 0 ] && [ $bash_failed -eq 0 ]; then
+        print_success "🎉 COMPLETE SUCCESS: All installations and configurations completed perfectly!"
+    elif [ $git_failed -eq 0 ] && [ $ssh_failed -eq 0 ]; then
+        print_success "✅ MOSTLY SUCCESSFUL: Core Git and SSH configuration completed successfully!"
+    else
+        print_warning "⚠️  PARTIAL SUCCESS: Installation completed with some configuration issues"
+    fi
+    
+    echo "======================================================================================"
+    echo "                                 Next Steps                                           "
+    echo "======================================================================================"
+    
+    local step_number=1
+    
+    if [ $ssh_failed -eq 0 ]; then
+        echo "$step_number. 🔑 Add your SSH public key to GitHub/GitLab (saved in public_key.txt)"
+        ((step_number++))
+    else
+        echo "$step_number. ❌ SSH key setup failed - you may need to configure it manually"
+        ((step_number++))
+    fi
+    
+    if [ $bash_failed -eq 0 ]; then
+        echo "$step_number. 🔄 Restart your terminal or run 'source ~/.bashrc' to load aliases"
+        ((step_number++))
+    else
+        echo "$step_number. ⚠️  Bash aliases failed - you may need to configure them manually"
+        ((step_number++))
+    fi
+    
+    if [ $git_failed -eq 0 ]; then
+        echo "$step_number. ✅ Test your Git configuration with 'git config --list'"
+        ((step_number++))
+    else
+        echo "$step_number. ❌ Git configuration failed - you may need to configure it manually"
+        ((step_number++))
+    fi
+    
+    if [ $external_software_failed -gt 0 ]; then
+        echo "$step_number. 🔧 Check failed software installations and install manually if needed"
+        ((step_number++))
+    fi
+    
+    echo "$step_number. 🐳 If Docker was installed, log out and back in to use Docker without sudo"
+    
     echo "======================================================================================"
 }
 

@@ -11,8 +11,8 @@ Taking advantage of the power of automation offered by Linux 🔥.
 - **System Compatibility Check**: Ensures the script runs only on Debian-based systems (Debian or Ubuntu derivatives).
 - **Automated System Update**: Update and upgrade all system packages for the installation, without the need to do it manually before running the script.
 - **Software Installation**:
-  - **From Repositories**: Installs common utilities like `vim`, `git`, `curl`, `openssh-client` and more.
-  - **External Software (.deb packages)**: Installs Google Chrome, Visual Studio Code, and the `uv` Python package manager.
+  - **From Repositories**: Install common utilities like `vim`, `git`, `curl`, `openssh-client` and more.
+  - **External Software**: Install Google Chrome, Visual Studio Code, the `uv` Python package manager, and Docker with its official repository.
 - **Git & GitHub Ready**:
   - **Git Configuration**: Configures your global Git username and email also establishes the default branch as main, using main aligns with modern Git hosting defaults (e.g., GitHub), avoids branch-name mismatches when pushing to remotes, and replaces the legacy master.
   - **SSH Configuration**: Generates a new `ed25519` SSH key, adds it to the `ssh-agent`, and after re-entering your passphrase manually, saves the public key for easy use on platforms like GitHub or GitLab.
@@ -82,11 +82,12 @@ This section provides a detailed breakdown of each function within the script.
 ### System and Software Installation Functions
 
 - `update_system()`: Performs a full system update by running `sudo apt update` and `sudo apt upgrade -y`.
-- `install_repository_software()`: Installs a predefined list of essential packages from the default system repositories (`vim`, `git`, `fastfetch`, `openssh-client`, `solaar`, `curl`).
-- `install_google_chrome()`: Downloads the `.deb` package for Google Chrome, installs it using `dpkg`, and handles any potential dependency issues with `apt --fix-broken install`.
-- `install_vscode()`: Downloads and installs the latest stable version of Visual Studio Code for Debian-based systems.
-- `install_uv()`: Installs `uv`, a fast Python package manager from Astral, by executing its official installation script.
-- `install_external_software()`: A wrapper function that calls the installers for Chrome, VS Code, and `uv`. It is designed to continue even if one of the installations fails.
+- `install_repository_software()`: Install a predefined list of essential packages from the default system repositories (`vim`, `git`, `fastfetch`, `openssh-client`, `solaar`, `curl`).
+- `install_google_chrome()`: Downloads the `.deb` package for Google Chrome, install it using `dpkg`, and handles any potential dependency issues with `apt --fix-broken install`.
+- `install_vscode()`: Downloads and install the latest stable version of Visual Studio Code for Debian-based systems.
+- `install_uv()`: Install `uv`, a fast Python package manager from Astral, by executing its official installation script.
+- `install_docker()`: Install Docker using the official Docker repository, for Debian and Ubuntu.
+- `install_external_software()`: A wrapper function that calls the installers for Chrome, VS Code, `uv` and Docker. It is designed to continue even if one of the installations fails.
 
 ### Git Configuration Function
 
