@@ -204,7 +204,7 @@ update_system() {
     fi
     
     echo "Upgrading installed packages..."
-    # Usar modo no interactivo para evitar prompts de needrestart
+    # Use non-interactive mode to avoid needrestart prompts
     if ! sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt upgrade -y; then
         print_error "Failed to upgrade packages"
         exit 1
@@ -662,7 +662,7 @@ alias glg='git log'
 
 EOL
 
-    # Asegurarse de que los cambios surtan efecto y evitar duplicados
+    # Ensure that changes take effect and avoid duplicates
     if ! grep -q "source ~/.bash_aliases" ~/.bashrc; then
         echo "source ~/.bash_aliases" >> ~/.bashrc
     fi
